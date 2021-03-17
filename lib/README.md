@@ -2,7 +2,8 @@
 
 This folder will contain the project libraries in the following format:
 <br/>
+<br/>
 
-Implementation: `lib/<library-name>/<library-name>.c`
+Implementation: `lib/<library-name>.c`
 
-Header: `lib/<library-name>/<library-name>.h`
+Header: `lib/<library-name>.h`
