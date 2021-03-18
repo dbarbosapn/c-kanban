@@ -1,15 +1,25 @@
 #include <linked_list.h>
 #include <stdint.h>
+#include <string.h>
+
+#define SERIALIZE_BUFFER_SIZE 2048
+#define VALUE_BUFFER_SIZE 256
 
 /**
- * Creates a new node with the given value
+ * Creates a new node with the given value.
+ * If alloc_size is 0, the node will be created by reference, not by value.
  * Returns the new node.
  **/
 Node *create_node(void *value, size_t alloc_size) {
     Node *node = (Node *)malloc(sizeof(Node));
-
-    node->value = malloc(alloc_size);
+    node->value = NULL;
     node->next = NULL;
+
+    if (alloc_size > 0) {
+        node->value = malloc(alloc_size);
+    } else {
+        node->value = value;
+    }
 
     memcpy(&node->value, &value, alloc_size);
 
@@ -42,6 +52,33 @@ Node *list_append(Node *head, void *value, size_t alloc_size) {
     }
 
     prev->next = node;
+
+    return head;
+}
+
+/**
+ * Adds a node in order to the list.
+ * Returns the head.
+ **/
+Node *list_add_inorder(Node *head, void *value, size_t alloc_size,
+                       int (*comparator)(void *, void *)) {
+    Node *node = create_node(value, alloc_size);
+    // Edge case where the new node should be the new head
+    if ((*comparator)(head->value, node->value) > 0) {
+        node->next = head;
+        return node;
+    }
+
+    Node *prev = head;
+    Node *curr = head->next;
+
+    while (curr != NULL && (*comparator)(curr->value, node->value) <= 0) {
+        prev = curr;
+        curr = curr->next;
+    }
+
+    prev->next = node;
+    node->next = curr;
 
     return head;
 }
@@ -91,18 +128,73 @@ Node *list_remove(Node *head, Node *to_remove) {
 }
 
 /**
- * Prints the serialized list in the provided file pointer.
+ * Serializes the given list.
  * Requires for a function that will serialize the value by itself.
  **/
-void list_serialize(FILE *output, Node *head,
-                    void (*value_serializer)(void *, FILE *)) {
+char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
+    char *buffer = malloc(SERIALIZE_BUFFER_SIZE * sizeof(char));
+
+    int i = 0;
+
     Node *curr = head;
-    putc('[', output);
+
+    buffer[i] = '[';
+    i++;
+
     while (curr != NULL) {
-        (*value_serializer)(curr->value, output);
-        if (curr->next != NULL) putc(',', output);
+        char *value = (*value_serializer)(curr->value);
+
+        for (int j = 0; j < strlen(value); j++, i++) {
+            buffer[i] = value[j];
+        }
+        free(value);
+
+        if (curr->next != NULL) {
+            buffer[i] = ',';
+            i++;
+        }
         curr = curr->next;
     }
-    putc(']', output);
-    putc('\n', output);
+
+    buffer[i] = ']';
+    buffer[i + 1] = '\0';
+
+    return buffer;
+}
+
+/**
+ * Deserializes the given string to a list.
+ * Requires a function that will serialize the value by itself.
+ * The function does not verify if input is valid.
+ **/
+Node *list_deserialize(char *input, void *(*deserializer)(char *)) {
+    Node *head = NULL;
+
+    int curr_index = 1;
+
+    while (input[curr_index] != ']') {
+        char *value_buffer = malloc(VALUE_BUFFER_SIZE * sizeof(char));
+        int i = 0;
+
+        while (input[curr_index] != ']' && input[curr_index] != ',') {
+            value_buffer[i] = input[curr_index];
+            curr_index++;
+            i++;
+        }
+
+        if (input[curr_index] == ',') curr_index++;
+
+        value_buffer[i] = '\0';
+
+        void *value = (*deserializer)(value_buffer);
+        free(value_buffer);
+
+        if (head != NULL) {
+            head = list_append(head, value, 0);
+        } else {
+            head = list_prepend(head, value, 0);
+        }
+    }
+
+    return head;
 }
