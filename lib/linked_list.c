@@ -2,9 +2,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#define SERIALIZE_BUFFER_SIZE 2048
-#define VALUE_BUFFER_SIZE 256
-
 /**
  * Creates a new node with the given value.
  * If alloc_size is 0, the node will be created by reference, not by value.
@@ -133,7 +130,7 @@ Node *list_remove(Node *head, Node *to_remove) {
  * Requires for a function that will serialize the value by itself.
  **/
 char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
-    char *buffer = malloc(SERIALIZE_BUFFER_SIZE * sizeof(char));
+    char *buffer = malloc(LIST_SERIALIZE_BUFFER_SIZE * sizeof(char));
 
     int i = 0;
 
@@ -168,13 +165,14 @@ char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
  * Requires a function that will serialize the value by itself.
  * The function does not verify if input is valid.
  **/
-Node *list_deserialize(char *input, void *(*deserializer)(char *)) {
+Node *list_deserialize(char *input, int value_buffer_size,
+                       void *(*deserializer)(char *)) {
     Node *head = NULL;
 
     int curr_index = 1;
 
     while (input[curr_index] != ']') {
-        char *value_buffer = malloc(VALUE_BUFFER_SIZE * sizeof(char));
+        char *value_buffer = malloc(value_buffer_size * sizeof(char));
         int i = 0;
 
         while (input[curr_index] != ']' && input[curr_index] != ',') {

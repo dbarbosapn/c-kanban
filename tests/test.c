@@ -81,7 +81,7 @@ void run_test_linked_list() {
     // STEP 5
     printf("-- STEP #5: ");
 
-    Node* dnode = list_deserialize("[1,5,6]", int_deserializer);
+    Node* dnode = list_deserialize("[1,5,6]", 50, int_deserializer);
     int n6 = list_get(dnode, 0)->value;
     int n7 = list_get(dnode, 1)->value;
     int n8 = list_get(dnode, 2)->value;
@@ -136,13 +136,14 @@ void run_test_task() {
     task_assign(t2, "Bob");
     task_set_finish(t2, 1, 1, 1999);
     task_set_deadline(t2, 1, 2, 2000);
-    task_free(t2);  // untestable
+    task_free(t2);
     task_reopen(t1);
     if (t1->state != TODO || t1->finish_date != NULL || t1->deadline != NULL ||
         t1->worker != NULL) {
         printf("FAILED\n");
     } else {
         printf("PASSED\n");
+        printf("Serialized task (t1): %s\n", task_serialize(t1));
     }
 }
 

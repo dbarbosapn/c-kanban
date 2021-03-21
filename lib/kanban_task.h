@@ -1,5 +1,7 @@
 #include <time.h>
 
+#define TASK_SERIALIZE_BUFFER_SIZE 1024
+
 typedef enum { TODO, DOING, DONE } kanban_state;
 
 typedef struct tm Date;  // defined in time.h; hours, minutes and seconds
@@ -33,3 +35,7 @@ KanbanTask *task_set_state(
 KanbanTask *task_set_priority(KanbanTask *task, int priority);
 
 KanbanTask *task_reopen(KanbanTask *task);
+
+char *task_serialize(KanbanTask *task);
+
+KanbanTask *task_deserialize(char *input);

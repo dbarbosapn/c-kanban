@@ -1,7 +1,7 @@
 PROJECT_NAME := c-kanban-tests
 
 COMPILER := gcc
-COMPILER_FLAGS := -Wall
+COMPILER_FLAGS := -w
 
 LIB_FOLDER := ../lib
 
