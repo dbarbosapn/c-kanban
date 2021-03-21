@@ -1,7 +1,7 @@
+#include <kanban_task.h>
 #include <linked_list.h>
 #include <stdio.h>
 #include <string.h>
-#include <task.h>
 
 char* int_serializer(void* value) {
     int val = (int)value;

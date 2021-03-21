@@ -1,6 +1,6 @@
+#include <kanban_task.h>
 #include <stdlib.h>
 #include <string.h>
-#include <task.h>
 
 /**
  * Creates new KanbanTask without an apointed worker nor deadline
