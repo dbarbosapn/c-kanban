@@ -63,6 +63,7 @@ Node *list_append(Node *head, void *value, size_t alloc_size) {
 Node *list_add_inorder(Node *head, void *value, size_t alloc_size,
                        int (*comparator)(void *, void *)) {
     Node *node = create_node(value, alloc_size);
+
     // Edge case where the new node should be the new head
     if ((*comparator)(head->value, node->value) > 0) {
         node->next = head;

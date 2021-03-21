@@ -1,33 +1,35 @@
 #include <time.h>
 
-typedef struct tm
-    Date;  // defined in time.h; hours, minutes and seconds aren't initialized
+typedef enum { TODO, DOING, DONE } kanban_state;
 
-typedef struct task {
-    int id;
+typedef struct tm Date;  // defined in time.h; hours, minutes and seconds
+                         // aren't initialized
+
+typedef struct kanban_task {
+    long id;
     int priority;  // value varies from [1-10]
-    Date *creation;
+    Date *creation_date;
     char *description;
     char *worker;  // name of the person working on the task
     Date *deadline;
-    Date *conclusion;  // date of conclusion
-    int state;         // 0,1,2 -> todo, doing, done;  default value = 0
-} Task;
+    Date *finish_date;  // date of conclusion
+    kanban_state state;
+} KanbanTask;
 
-Task *create_task(int id, char *descr, int priority);
+KanbanTask *create_task(char *desc, int priority);
 
-void free_task(Task *task);
+void task_free(KanbanTask *task);
 
-Task *assign_task(Task *task, char *workerName);
+KanbanTask *task_assign(KanbanTask *task, char *worker_name);
 
-Task *deadline(Task *task, int day, int month, int year);
+KanbanTask *task_set_deadline(KanbanTask *task, int day, int month, int year);
 
-Task *conclusion(Task *task, int day, int month, int year);
+KanbanTask *task_set_finish(KanbanTask *task, int day, int month, int year);
 
-Task *update_state(Task *task, int state);  // state value varies from [0-2]
+KanbanTask *task_set_state(
+    KanbanTask *task,
+    kanban_state state);  // state value varies from [0-2]
 
-Task *update_priority(Task *task, int priority);
+KanbanTask *task_set_priority(KanbanTask *task, int priority);
 
-Task *reopen(Task *task);
-
-// TODO: compare dates between 2 tasks
+KanbanTask *task_reopen(KanbanTask *task);

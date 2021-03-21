@@ -1,28 +1,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <task.h>
+
 /**
- * Creates new Task without an apointed worker nor deadline
+ * Creates new KanbanTask without an apointed worker nor deadline
  * id parameter must be unique
  **/
-Task *create_task(int id, char *descr, int priority) {
-    Task *task = malloc(sizeof(Task));
-    task->id = id;
-    task->priority = priority;
-    task->state = 0;
+KanbanTask *create_task(char *desc, int priority) {
+    KanbanTask *task = malloc(sizeof(KanbanTask));
 
     time_t rawtime;
     time(&rawtime);
-    Date *d = localtime(&rawtime);
-    task->creation = malloc(sizeof(Date));
-    task->creation->tm_mday = d->tm_mday;
-    task->creation->tm_mon = d->tm_mon;
-    task->creation->tm_year = d->tm_year;
 
-    size_t descrLen = strlen(descr);
-    task->description = malloc((descrLen + 1) * sizeof(char));
-    strncpy(task->description, descr, descrLen);
-    task->description[descrLen] = '\0';
+    // The ID is the long value of rawtime. This will ensure it is unique
+    task->id = rawtime;
+    task->priority = priority;
+    task->state = TODO;
+
+    task->worker = NULL;
+    task->deadline = NULL;
+    task->finish_date = NULL;
+
+    Date *d = localtime(&rawtime);
+    task->creation_date = malloc(sizeof(Date));
+    memcpy(task->creation_date, d, sizeof(Date));
+
+    size_t desc_len = strlen(desc);
+    task->description = malloc((desc_len + 1) * sizeof(char));
+    strncpy(task->description, desc, desc_len);
+    task->description[desc_len] = '\0';
 
     return task;
 }
@@ -30,8 +36,8 @@ Task *create_task(int id, char *descr, int priority) {
 /**
  * Deletes task from memory
  **/
-void free_task(Task *task) {
-    if (task->creation != NULL) free(task->creation);
+void task_free(KanbanTask *task) {
+    if (task->creation_date != NULL) free(task->creation_date);
 
     if (task->description != NULL) free(task->description);
 
@@ -39,9 +45,9 @@ void free_task(Task *task) {
 
     if (task->deadline != NULL) free(task->deadline);
 
-    task->creation = NULL;
+    task->creation_date = NULL;
     task->deadline = NULL;
-    task->conclusion = NULL;
+    task->finish_date = NULL;
     task->worker = NULL;
 
     free(task);
@@ -50,23 +56,23 @@ void free_task(Task *task) {
 /**
  * Assigns task to worker
  **/
-Task *assign_task(Task *task, char *workerName) {
+KanbanTask *task_assign(KanbanTask *task, char *worker_name) {
     if (task->worker != NULL) {
         free(task->worker);
     }
 
-    size_t nameLen = strlen(workerName);
-    task->worker = malloc((nameLen + 1) * sizeof(char));
-    strncpy(task->worker, workerName, nameLen);
-    task->worker[nameLen] = '\0';
+    size_t name_len = strlen(worker_name);
+    task->worker = malloc((name_len + 1) * sizeof(char));
+    strncpy(task->worker, worker_name, name_len);
+    task->worker[name_len] = '\0';
 
     return task;
 }
 
 /**
- * Gives deadline to Task
+ * Sets task deadline
  **/
-Task *deadline(Task *task, int day, int month, int year) {
+KanbanTask *task_set_deadline(KanbanTask *task, int day, int month, int year) {
     task->deadline = malloc(sizeof(Date));
     task->deadline->tm_mday = day;
     task->deadline->tm_mon = month;
@@ -75,20 +81,20 @@ Task *deadline(Task *task, int day, int month, int year) {
 }
 
 /**
- * Gives conclusion date to Task
+ * Gives conclusion date to KanbanTask
  **/
-Task *conclusion(Task *task, int day, int month, int year) {
-    task->conclusion = malloc(sizeof(Date));
-    task->conclusion->tm_mday = day;
-    task->conclusion->tm_mon = month;
-    task->conclusion->tm_year = year;
+KanbanTask *task_set_finish(KanbanTask *task, int day, int month, int year) {
+    task->finish_date = malloc(sizeof(Date));
+    task->finish_date->tm_mday = day;
+    task->finish_date->tm_mon = month;
+    task->finish_date->tm_year = year;
     return task;
 }
 
 /**
  * Updates state
  **/
-Task *update_state(Task *task, int state) {
+KanbanTask *task_set_state(KanbanTask *task, kanban_state state) {
     task->state = state;
     return task;
 }
@@ -96,24 +102,24 @@ Task *update_state(Task *task, int state) {
 /**
  * Changes priority
  **/
-Task *update_priority(Task *task, int priority) {
+KanbanTask *task_set_priority(KanbanTask *task, int priority) {
     task->priority = priority;
     return task;
 }
 
 /**
  * Reopens a done task
- *    Done->To Do
+ *    DONE -> TODO
  **/
-Task *reopen(Task *task) {
+KanbanTask *task_reopen(KanbanTask *task) {
     free(task->deadline);
-    free(task->conclusion);
+    free(task->finish_date);
     free(task->worker);
 
     task->deadline = NULL;
-    task->conclusion = NULL;
+    task->finish_date = NULL;
     task->worker = NULL;
 
-    task->state = 0;
+    task->state = TODO;
     return task;
 }
