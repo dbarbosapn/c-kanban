@@ -81,7 +81,7 @@ void run_test_linked_list() {
     // STEP 5
     printf("-- STEP #5: ");
 
-    Node* dnode = list_deserialize("[1,5,6]", 50, int_deserializer);
+    Node* dnode = list_deserialize("[1|5|6]", 50, int_deserializer);
     int n6 = list_get(dnode, 0)->value;
     int n7 = list_get(dnode, 1)->value;
     int n8 = list_get(dnode, 2)->value;
@@ -97,7 +97,7 @@ void run_test_task() {
     printf("-- STEP #1: ");
     char str1[] = "I'm beautiful";
     char str2[] = "My name is Jeff";
-    KanbanTask* t1 = create_task(str1, 10);
+    KanbanTask* t1 = create_task(1, str1, 10);
     task_assign(t1, str2);
     if (strncmp(t1->description, str1, strlen(str1)) != 0 ||
         strncmp(t1->worker, str2, strlen(str2)) != 0 || t1->deadline != NULL ||
@@ -132,7 +132,7 @@ void run_test_task() {
 
     // STEP 4 - cleaning memory
     printf("-- STEP #4: ");
-    KanbanTask* t2 = create_task("I'm so cool", 1);
+    KanbanTask* t2 = create_task(2, "I'm so cool", 1);
     task_assign(t2, "Bob");
     task_set_finish(t2, 1, 1, 1999);
     task_set_deadline(t2, 1, 2, 2000);

@@ -18,7 +18,7 @@ typedef struct kanban_task {
     kanban_state state;
 } KanbanTask;
 
-KanbanTask *create_task(char *desc, int priority);
+KanbanTask *create_task(int id, char *desc, int priority);
 
 void task_free(KanbanTask *task);
 

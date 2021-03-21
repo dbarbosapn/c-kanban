@@ -6,7 +6,7 @@
  * Creates new KanbanTask without an apointed worker nor deadline
  * id parameter must be unique
  **/
-KanbanTask *create_task(char *desc, int priority) {
+KanbanTask *create_task(int id, char *desc, int priority) {
     KanbanTask *task = malloc(sizeof(KanbanTask));
 
     time_t rawtime;

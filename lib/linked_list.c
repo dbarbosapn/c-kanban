@@ -128,6 +128,8 @@ Node *list_remove(Node *head, Node *to_remove) {
 /**
  * Serializes the given list.
  * Requires for a function that will serialize the value by itself.
+ * The values must not contain the character '|', since it is used as a
+ * separator
  **/
 char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
     char *buffer = malloc(LIST_SERIALIZE_BUFFER_SIZE * sizeof(char));
@@ -148,7 +150,7 @@ char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
         free(value);
 
         if (curr->next != NULL) {
-            buffer[i] = ',';
+            buffer[i] = '|';
             i++;
         }
         curr = curr->next;
@@ -175,13 +177,13 @@ Node *list_deserialize(char *input, int value_buffer_size,
         char *value_buffer = malloc(value_buffer_size * sizeof(char));
         int i = 0;
 
-        while (input[curr_index] != ']' && input[curr_index] != ',') {
+        while (input[curr_index] != ']' && input[curr_index] != '|') {
             value_buffer[i] = input[curr_index];
             curr_index++;
             i++;
         }
 
-        if (input[curr_index] == ',') curr_index++;
+        if (input[curr_index] == '|') curr_index++;
 
         value_buffer[i] = '\0';
 
