@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define LIST_SERIALIZE_BUFFER_SIZE 4096
+
 typedef struct node {
     void *value;
     struct node *next;
@@ -23,4 +25,5 @@ Node *list_sort(Node *head, int (*comparator)(void *, void *));
 
 char *list_serialize(Node *head, char *(*serializer)(void *));
 
-Node *list_deserialize(char *input, void *(*deserializer)(char *));
+Node *list_deserialize(char *input, int value_buffer_size,
+                       void *(*deserializer)(char *));

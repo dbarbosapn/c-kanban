@@ -2,9 +2,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#define SERIALIZE_BUFFER_SIZE 2048
-#define VALUE_BUFFER_SIZE 256
-
 /**
  * Creates a new node with the given value.
  * If alloc_size is 0, the node will be created by reference, not by value.
@@ -63,6 +60,7 @@ Node *list_append(Node *head, void *value, size_t alloc_size) {
 Node *list_add_inorder(Node *head, void *value, size_t alloc_size,
                        int (*comparator)(void *, void *)) {
     Node *node = create_node(value, alloc_size);
+
     // Edge case where the new node should be the new head
     if ((*comparator)(head->value, node->value) > 0) {
         node->next = head;
@@ -130,9 +128,11 @@ Node *list_remove(Node *head, Node *to_remove) {
 /**
  * Serializes the given list.
  * Requires for a function that will serialize the value by itself.
+ * The values must not contain the character '|', since it is used as a
+ * separator
  **/
 char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
-    char *buffer = malloc(SERIALIZE_BUFFER_SIZE * sizeof(char));
+    char *buffer = malloc(LIST_SERIALIZE_BUFFER_SIZE * sizeof(char));
 
     int i = 0;
 
@@ -150,7 +150,7 @@ char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
         free(value);
 
         if (curr->next != NULL) {
-            buffer[i] = ',';
+            buffer[i] = '|';
             i++;
         }
         curr = curr->next;
@@ -167,22 +167,23 @@ char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
  * Requires a function that will serialize the value by itself.
  * The function does not verify if input is valid.
  **/
-Node *list_deserialize(char *input, void *(*deserializer)(char *)) {
+Node *list_deserialize(char *input, int value_buffer_size,
+                       void *(*deserializer)(char *)) {
     Node *head = NULL;
 
     int curr_index = 1;
 
     while (input[curr_index] != ']') {
-        char *value_buffer = malloc(VALUE_BUFFER_SIZE * sizeof(char));
+        char *value_buffer = malloc(value_buffer_size * sizeof(char));
         int i = 0;
 
-        while (input[curr_index] != ']' && input[curr_index] != ',') {
+        while (input[curr_index] != ']' && input[curr_index] != '|') {
             value_buffer[i] = input[curr_index];
             curr_index++;
             i++;
         }
 
-        if (input[curr_index] == ',') curr_index++;
+        if (input[curr_index] == '|') curr_index++;
 
         value_buffer[i] = '\0';
 

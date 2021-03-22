@@ -1,7 +1,7 @@
+#include <kanban_task.h>
 #include <linked_list.h>
 #include <stdio.h>
 #include <string.h>
-#include <task.h>
 
 char* int_serializer(void* value) {
     int val = (int)value;
@@ -81,7 +81,7 @@ void run_test_linked_list() {
     // STEP 5
     printf("-- STEP #5: ");
 
-    Node* dnode = list_deserialize("[1,5,6]", int_deserializer);
+    Node* dnode = list_deserialize("[1|5|6]", 50, int_deserializer);
     int n6 = list_get(dnode, 0)->value;
     int n7 = list_get(dnode, 1)->value;
     int n8 = list_get(dnode, 2)->value;
@@ -95,25 +95,25 @@ void run_test_linked_list() {
 void run_test_task() {
     // STEP 1 - init
     printf("-- STEP #1: ");
-    char str1[] = "I'm beautifull";
+    char str1[] = "I'm beautiful";
     char str2[] = "My name is Jeff";
-    Task* t1 = create_task(1, str1, 10);
-    assign_task(t1, str2);
+    KanbanTask* t1 = create_task(1, str1, 10);
+    task_assign(t1, str2);
     if (strncmp(t1->description, str1, strlen(str1)) != 0 ||
         strncmp(t1->worker, str2, strlen(str2)) != 0 || t1->deadline != NULL ||
-        t1->state != 0 || t1->id != 1 || t1->priority != 10) {
+        t1->state != TODO || t1->priority != 10) {
         printf("FAILED\n");
     } else {
         printf("PASSED\n");
-        printf("-- Today is: %s", asctime(t1->creation));
+        printf("-- Today is: %s", asctime(t1->creation_date));
     }
 
     // STEP 2 - dates
     printf("-- STEP #2: ");
-    deadline(t1, 25, 4, 2019);
+    task_set_deadline(t1, 25, 4, 2019);
     Date* d1 = t1->deadline;
-    conclusion(t1, 23, 4, 2018);
-    Date* d2 = t1->conclusion;
+    task_set_finish(t1, 23, 4, 2018);
+    Date* d2 = t1->finish_date;
     if (d1->tm_mday != 25 || d1->tm_mon != 4 || d1->tm_year != 2019 ||
         d2->tm_mday != 23 || d2->tm_mon != 4 || d2->tm_year != 2018) {
         printf("FAILED\n");
@@ -122,9 +122,9 @@ void run_test_task() {
 
     // STEP 3 - changes
     printf("-- STEP #3: ");
-    update_state(t1, 2);
-    update_priority(t1, 4);
-    if (t1->state != 2 | t1->priority != 4) {
+    task_set_state(t1, 2);
+    task_set_priority(t1, 4);
+    if (t1->state != DONE | t1->priority != 4) {
         printf("FAILED\n");
     } else {
         printf("PASSED\n");
@@ -132,17 +132,18 @@ void run_test_task() {
 
     // STEP 4 - cleaning memory
     printf("-- STEP #4: ");
-    Task* t2 = create_task(2, "I'm so cool", 1);
-    assign_task(t2, "Bob");
-    conclusion(t2, 1, 1, 1999);
-    deadline(t2, 1, 2, 2000);
-    free_task(t2);  // untestable
-    reopen(t1);
-    if (t1->state != 0 || t1->conclusion != NULL || t1->deadline != NULL ||
+    KanbanTask* t2 = create_task(2, "I'm so cool", 1);
+    task_assign(t2, "Bob");
+    task_set_finish(t2, 1, 1, 1999);
+    task_set_deadline(t2, 1, 2, 2000);
+    task_free(t2);
+    task_reopen(t1);
+    if (t1->state != TODO || t1->finish_date != NULL || t1->deadline != NULL ||
         t1->worker != NULL) {
         printf("FAILED\n");
     } else {
         printf("PASSED\n");
+        printf("Serialized task (t1): %s\n", task_serialize(t1));
     }
 }
 
