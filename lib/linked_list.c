@@ -14,11 +14,10 @@ Node *create_node(void *value, size_t alloc_size) {
 
     if (alloc_size > 0) {
         node->value = malloc(alloc_size);
+        memcpy(&node->value, &value, alloc_size);
     } else {
         node->value = value;
     }
-
-    memcpy(&node->value, &value, alloc_size);
 
     return node;
 }
@@ -41,14 +40,12 @@ Node *list_prepend(Node *head, void *value, size_t alloc_size) {
 Node *list_append(Node *head, void *value, size_t alloc_size) {
     Node *node = create_node(value, alloc_size);
 
-    Node *prev = head;
-    Node *curr = head->next;
-    while (curr != NULL) {
-        prev = curr;
-        curr = curr->next;
-    }
+    if (head == NULL) return node;
 
-    prev->next = node;
+    Node *last = head;
+    while (last->next != NULL) last = last->next;
+
+    last->next = node;
 
     return head;
 }
@@ -113,7 +110,6 @@ Node *list_remove(Node *head, Node *to_remove) {
 
     Node *next = curr->next;
 
-    free(&(curr->value));
     free(curr);
 
     if (prev == NULL) {
@@ -160,4 +156,40 @@ char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
     buffer[i + 1] = '\0';
 
     return buffer;
+}
+
+/**
+ * Saves the list in the given file. fp must have write binary permissions.
+ **/
+void *list_save(Node *head, FILE *fp, void *(*value_saver)(void *, FILE *)) {
+    Node *curr = head;
+    while (curr != NULL) {
+        (*value_saver)(curr->value, fp);
+        curr = curr->next;
+    }
+}
+
+/**
+ * Loads the list from the given file. fp must have read binary permissions.
+ * Assumes that the value_loader will return NULL when there are no more values
+ * to read.
+ **/
+Node *list_load(FILE *fp, void *(*value_loader)(FILE *), size_t alloc_size) {
+    Node *curr;
+    Node *head = NULL;
+
+    while (1) {
+        void *value = (*value_loader)(fp);
+        if (value == NULL) break;
+        if (head != NULL) {
+            Node *n = create_node(value, alloc_size);
+            curr->next = n;
+            curr = n;
+        } else {
+            head = create_node(value, alloc_size);
+            curr = head;
+        }
+    }
+
+    return head;
 }

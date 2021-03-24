@@ -182,3 +182,27 @@ char *task_serialize(KanbanTask *task) {
 
     return buffer;
 }
+
+/**
+ * Saves the given task in a binary file. The file pointer must have write
+ * binary permissions.
+ **/
+void *task_save(KanbanTask *task, FILE *fp) {
+    fwrite(task, sizeof(KanbanTask), 1, fp);
+}
+
+/**
+ * Loads a KanbanTask from the given file pointer. The file pointer must have
+ * read binary permissions.
+ **/
+KanbanTask *task_load(FILE *fp) {
+    KanbanTask *task = malloc(sizeof(KanbanTask));
+    int rlen = fread(task, sizeof(KanbanTask), 1, fp);
+
+    if (rlen < 1) {
+        free(task);
+        return NULL;
+    }
+
+    return task;
+}

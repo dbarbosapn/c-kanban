@@ -18,8 +18,6 @@ int int_comparator(void* value1, void* value2) {
 }
 
 void run_test_linked_list() {
-    int failed = 0;
-
     // STEP 1
     printf("-- STEP #1: ");
 
@@ -28,10 +26,9 @@ void run_test_linked_list() {
 
     int n0 = list_get(n, 0)->value;
     int n1 = list_get(n, 1)->value;
-    if (n0 != 2 || n1 != 1) {
+    if (n0 != 2 || n1 != 1)
         printf("FAILED\n");
-        failed = 1;
-    } else
+    else
         printf("PASSED\n");
 
     // STEP 2
@@ -40,10 +37,9 @@ void run_test_linked_list() {
     n = list_append(n, 3, sizeof(int));
 
     int n2 = list_get(n, 2)->value;
-    if (n2 != 3) {
+    if (n2 != 3)
         printf("FAILED\n");
-        failed = 1;
-    } else
+    else
         printf("PASSED\n");
 
     // STEP 3
@@ -54,10 +50,9 @@ void run_test_linked_list() {
     n = list_remove(n, list_get(n, 1));
 
     int n3 = list_get(n, 1)->value;
-    if (n3 != 3) {
+    if (n3 != 3)
         printf("FAILED\n");
-        failed = 1;
-    } else
+    else
         printf("PASSED\n");
 
     // STEP 4
@@ -68,13 +63,43 @@ void run_test_linked_list() {
 
     int n4 = list_get(n, 0)->value;
     int n5 = list_get(n, 1)->value;
-    if (n4 != -1 || n5 != 0) {
+    if (n4 != -1 || n5 != 0)
         printf("FAILED\n");
-        failed = 1;
-    } else
+    else
         printf("PASSED\n");
 
+    list_remove(n, list_get(n, 1));
     printf("Serialized list: %s\n", list_serialize(n, int_serializer));
+
+    // STEP 5
+    KanbanTask* task1 = create_task(1, "Task1", 1);
+    KanbanTask* task2 = create_task(2, "Task2", 2);
+
+    Node* task_list = create_node(task1, 0);
+    task_list = list_append(task_list, task2, 0);
+
+    printf("-- STEP #5: ");
+    FILE* fp = fopen("test.bin", "wb");
+    list_save(task_list, fp, task_save);
+    fclose(fp);
+    fp = fopen("test.bin", "rb");
+    Node* task_list1 = list_load(fp, task_load, 0);
+    fclose(fp);
+
+    KanbanTask* task3 = list_get(task_list1, 0)->value;
+    KanbanTask* task4 = list_get(task_list1, 1)->value;
+    if (task3->id != 1 || task4->id != 2)
+        printf("FAILED\n");
+    else
+        printf("PASSED\n");
+
+    free(n);
+    free(task_list);
+    free(task1);
+    free(task2);
+    free(task_list1);
+    free(task3);
+    free(task4);
 }
 
 void run_test_task() {
@@ -110,13 +135,33 @@ void run_test_task() {
     printf("-- STEP #3: ");
     task_set_state(t1, 2);
     task_set_priority(t1, 4);
-    if (t1->state != DONE | t1->priority != 4) {
+    if (t1->state != DONE || t1->priority != 4) {
+        printf("FAILED\n");
+    } else {
+        printf("PASSED\n");
+    }
+
+    // STEP 4 - save and load
+    printf("-- STEP #4: ");
+    KanbanTask* t2 = create_task(1, "Test", 5);
+    FILE* fp = fopen("test.bin", "wb");
+    task_save(t2, fp);
+    fclose(fp);
+    fp = fopen("test.bin", "rb");
+    KanbanTask* t3 = task_load(fp);
+    fclose(fp);
+    if (t3->state != TODO || t3->priority != 5 || t3->id != 1 ||
+        strcmp("Test", t3->description) != 0) {
         printf("FAILED\n");
     } else {
         printf("PASSED\n");
     }
 
     printf("Serialized task (t1): %s\n", task_serialize(t1));
+
+    free(t1);
+    free(t2);
+    free(t3);
 }
 
 int main(int argc, char const* argv[]) {
