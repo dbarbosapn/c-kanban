@@ -17,8 +17,6 @@ int int_comparator(void* value1, void* value2) {
     return val1 - val2;
 }
 
-void* int_deserializer(char* input) { return atoi(input); }
-
 void run_test_linked_list() {
     int failed = 0;
 
@@ -77,19 +75,6 @@ void run_test_linked_list() {
         printf("PASSED\n");
 
     printf("Serialized list: %s\n", list_serialize(n, int_serializer));
-
-    // STEP 5
-    printf("-- STEP #5: ");
-
-    Node* dnode = list_deserialize("[1|5|6]", 50, int_deserializer);
-    int n6 = list_get(dnode, 0)->value;
-    int n7 = list_get(dnode, 1)->value;
-    int n8 = list_get(dnode, 2)->value;
-    if (n6 != 1 || n7 != 5 || n8 != 6) {
-        printf("FAILED\n");
-        failed = 1;
-    } else
-        printf("PASSED\n");
 }
 
 void run_test_task() {
@@ -105,20 +90,21 @@ void run_test_task() {
         printf("FAILED\n");
     } else {
         printf("PASSED\n");
-        printf("-- Today is: %s", asctime(t1->creation_date));
+        printf("-- Today is: %s", asctime(localtime(&t1->creation_date)));
     }
 
     // STEP 2 - dates
     printf("-- STEP #2: ");
     task_set_deadline(t1, 25, 4, 2019);
-    Date* d1 = t1->deadline;
     task_set_finish(t1, 23, 4, 2018);
-    Date* d2 = t1->finish_date;
-    if (d1->tm_mday != 25 || d1->tm_mon != 4 || d1->tm_year != 2019 ||
-        d2->tm_mday != 23 || d2->tm_mon != 4 || d2->tm_year != 2018) {
+    Date d1 = *localtime(&t1->deadline);
+    Date d2 = *localtime(&t1->finish_date);
+
+    if (d1.tm_mday != 25 || d1.tm_mon != 4 - 1 || d1.tm_year != 2019 - 1900 ||
+        d2.tm_mday != 23 || d2.tm_mon != 4 - 1 || d2.tm_year != 2018 - 1900) {
         printf("FAILED\n");
-    }
-    printf("PASSED\n");
+    } else
+        printf("PASSED\n");
 
     // STEP 3 - changes
     printf("-- STEP #3: ");
@@ -130,26 +116,12 @@ void run_test_task() {
         printf("PASSED\n");
     }
 
-    // STEP 4 - cleaning memory
-    printf("-- STEP #4: ");
-    KanbanTask* t2 = create_task(2, "I'm so cool", 1);
-    task_assign(t2, "Bob");
-    task_set_finish(t2, 1, 1, 1999);
-    task_set_deadline(t2, 1, 2, 2000);
-    task_free(t2);
-    task_reopen(t1);
-    if (t1->state != TODO || t1->finish_date != NULL || t1->deadline != NULL ||
-        t1->worker != NULL) {
-        printf("FAILED\n");
-    } else {
-        printf("PASSED\n");
-        printf("Serialized task (t1): %s\n", task_serialize(t1));
-    }
+    printf("Serialized task (t1): %s\n", task_serialize(t1));
 }
 
 int main(int argc, char const* argv[]) {
     putchar('\n');
-    printf("############### TESTING TASK ###############\n");
+    printf("############### TESTING KANBAN TASK ########\n");
     run_test_task();
     printf("############################################\n\n");
 

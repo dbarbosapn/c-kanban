@@ -25,5 +25,6 @@ Node *list_sort(Node *head, int (*comparator)(void *, void *));
 
 char *list_serialize(Node *head, char *(*serializer)(void *));
 
-Node *list_deserialize(char *input, int value_buffer_size,
-                       void *(*deserializer)(char *));
+void *list_save(Node *head, FILE *fp, void *(*value_saver)(void *, FILE *));
+
+Node *list_load(FILE *fp, void *(*value_loader)(FILE *));

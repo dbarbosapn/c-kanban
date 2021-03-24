@@ -27,8 +27,7 @@ Node* load_data() {
         }
 
         fclose(fp);
-        return list_deserialize(buffer, TASK_SERIALIZE_BUFFER_SIZE,
-                                task_deserialize);
+        return NULL;
     }
 
     return NULL;
@@ -38,7 +37,7 @@ Node* load_data() {
  * Saves the given list in the data file
  **/
 void save_data(Node* all_tasks) {
-    char* str = task_deserialize(all_tasks);
+    char* str = "";
     FILE* fp = fopen(TASKS_FILE, "w");
     fputs(str, fp);
     fclose(fp);
