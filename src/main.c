@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define TASKS_FILE "data/all_tasks.data"
+#define TASKS_FILE "data/all_tasks.bin"
 
 /**
  * Checks if a file exists
@@ -16,19 +16,10 @@ int file_exists(char* path) { return access(path, F_OK) == 0; }
  **/
 Node* load_data() {
     if (file_exists(TASKS_FILE)) {
-        FILE* fp = fopen(TASKS_FILE, "r");
-
-        char buffer[LIST_SERIALIZE_BUFFER_SIZE];
-        if (!fp || feof(fp) || !fgets(buffer, sizeof(buffer), fp)) {
-            printf("There was an error loading the data file. (%s)\n",
-                   TASKS_FILE);
-            fclose(fp);
-            return NULL;
-        }
-
+        FILE* fp = fopen(TASKS_FILE, "rb");
+        Node* n = list_load(fp, task_load, 0);
         fclose(fp);
-        return list_deserialize(buffer, TASK_SERIALIZE_BUFFER_SIZE,
-                                task_deserialize);
+        return n;
     }
 
     return NULL;
@@ -38,9 +29,8 @@ Node* load_data() {
  * Saves the given list in the data file
  **/
 void save_data(Node* all_tasks) {
-    char* str = task_deserialize(all_tasks);
-    FILE* fp = fopen(TASKS_FILE, "w");
-    fputs(str, fp);
+    FILE* fp = fopen(TASKS_FILE, "wb");
+    list_save(all_tasks, fp, task_save);
     fclose(fp);
 }
 
