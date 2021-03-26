@@ -93,6 +93,9 @@ void run_test_linked_list() {
     else
         printf("PASSED\n");
 
+    printf("Serialized list of tasks: %s\n",
+           list_serialize(task_list1, task_serialize));
+
     free(n);
     free(task_list);
     free(task1);
