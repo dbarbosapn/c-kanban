@@ -82,7 +82,7 @@ int command_reopen(Node *todo,Node *done, long task_id) {
 
 Node *get_task_using_id(Node *head, long task_id) {
      Node *curr = head;
-     while (curr != NULL && curr->id != task_id) {
+     while (curr != NULL && curr->value->id != task_id) {
           curr = curr->next;
      }
      if (curr == NULL) return NULL;
