@@ -98,11 +98,11 @@ void run_test_linked_list() {
 
     free(n);
     free(task_list);
-    free(task1);
-    free(task2);
+    delete_task(task1);
+    delete_task(task2);
     free(task_list1);
-    free(task3);
-    free(task4);
+    delete_task(task3);
+    delete_task(task4);
 }
 
 void run_test_task() {
