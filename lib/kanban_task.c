@@ -16,21 +16,34 @@ KanbanTask *create_task(int id, char *desc, int priority) {
     task->priority = priority;
     task->state = TODO;
 
-    strcpy(task->worker, "");
+    task->worker = NULL;
     task->deadline = NULL;
     task->finish_date = NULL;
 
     task->creation_date = curr_time;
 
+    task->description = malloc(sizeof(char) * strlen(desc) + 1);
     strcpy(task->description, desc);
 
     return task;
 }
 
 /**
+ * Frees the dynamically allocated memory for the given task.
+ **/
+void delete_task(KanbanTask *task) {
+    if (task->worker != NULL) free(task->worker);
+    free(task->description);
+
+    free(task);
+}
+
+/**
  * Assigns task to worker
  **/
 KanbanTask *task_assign(KanbanTask *task, char *worker_name) {
+    if (task->worker != NULL) free(task->worker);
+    task->worker = malloc(sizeof(char) * strlen(worker_name) + 1);
     strcpy(task->worker, worker_name);
     return task;
 }
@@ -188,7 +201,25 @@ char *task_serialize(KanbanTask *task) {
  * binary permissions.
  **/
 void *task_save(KanbanTask *task, FILE *fp) {
-    fwrite(task, sizeof(KanbanTask), 1, fp);
+    fwrite(&task->id, sizeof(long), 1, fp);
+    fwrite(&task->priority, sizeof(int), 1, fp);
+    fwrite(&task->creation_date, sizeof(time_t), 1, fp);
+    int ldesc = strlen(task->description);
+    fwrite(&ldesc, sizeof(int), 1, fp);
+    fwrite(task->description, sizeof(char), ldesc, fp);
+    int lworker = 0;
+
+    if (task->worker != NULL) {
+        lworker = strlen(task->worker);
+        fwrite(&lworker, sizeof(int), 1, fp);
+        fwrite(task->worker, sizeof(char), ldesc, fp);
+    } else {
+        fwrite(&lworker, sizeof(int), 1, fp);
+    }
+
+    fwrite(&task->deadline, sizeof(time_t), 1, fp);
+    fwrite(&task->finish_date, sizeof(time_t), 1, fp);
+    fwrite(&task->state, sizeof(kanban_state), 1, fp);
 }
 
 /**
@@ -197,12 +228,36 @@ void *task_save(KanbanTask *task, FILE *fp) {
  **/
 KanbanTask *task_load(FILE *fp) {
     KanbanTask *task = malloc(sizeof(KanbanTask));
-    int rlen = fread(task, sizeof(KanbanTask), 1, fp);
-
+    int rlen = fread(&task->id, sizeof(long), 1, fp);
     if (rlen < 1) {
         free(task);
         return NULL;
     }
+
+    fread(&task->priority, sizeof(int), 1, fp);
+    fread(&task->creation_date, sizeof(time_t), 1, fp);
+
+    int ldesc;
+    fread(&ldesc, sizeof(int), 1, fp);
+    char *description = malloc(sizeof(char) * ldesc + 1);
+    fread(description, sizeof(char), ldesc, fp);
+    description[ldesc] = '\0';
+    task->description = description;
+
+    int lworker;
+    fread(&lworker, sizeof(int), 1, fp);
+    if (lworker > 0) {
+        char *worker = malloc(sizeof(char) * lworker + 1);
+        fread(worker, sizeof(char), lworker, fp);
+        worker[lworker] = '\0';
+        task->worker = worker;
+    } else {
+        task->worker = NULL;
+    }
+
+    fread(&task->deadline, sizeof(time_t), 1, fp);
+    fread(&task->finish_date, sizeof(time_t), 1, fp);
+    fread(&task->state, sizeof(kanban_state), 1, fp);
 
     return task;
 }
