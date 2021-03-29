@@ -17,8 +17,8 @@ KanbanTask *create_task(int id, char *desc, int priority) {
     task->state = TODO;
 
     task->worker = NULL;
-    task->deadline = NULL;
-    task->finish_date = NULL;
+    task->deadline = -1;
+    task->finish_date = -1;
 
     task->creation_date = curr_time;
 
@@ -101,7 +101,9 @@ KanbanTask *task_set_priority(KanbanTask *task, int priority) {
 /**
  * Serializes the given task
  */
-char *task_serialize(KanbanTask *task) {
+char *task_serialize(void *task_raw) {
+    KanbanTask *task = (KanbanTask *)task_raw;
+
     char *buffer = malloc(TASK_SERIALIZE_BUFFER_SIZE * sizeof(char));
     char value_buffer[50];
     buffer[0] = '{';
@@ -124,7 +126,7 @@ char *task_serialize(KanbanTask *task) {
     i++;
 
     // CREATION DATE
-    if (task->creation_date != NULL) {
+    if (task->creation_date != -1) {
         sprintf(value_buffer, "%ld", task->creation_date);
     } else {
         strcpy(value_buffer, "NULL");
@@ -155,7 +157,7 @@ char *task_serialize(KanbanTask *task) {
     i++;
 
     // DEADLINE
-    if (task->deadline != NULL) {
+    if (task->deadline != -1) {
         sprintf(value_buffer, "%ld", task->deadline);
     } else {
         strcpy(value_buffer, "NULL");
@@ -167,7 +169,7 @@ char *task_serialize(KanbanTask *task) {
     i++;
 
     // FINISH DATE
-    if (task->finish_date != NULL) {
+    if (task->finish_date != -1) {
         sprintf(value_buffer, "%ld", task->finish_date);
     } else {
         strcpy(value_buffer, "NULL");
@@ -200,7 +202,8 @@ char *task_serialize(KanbanTask *task) {
  * Saves the given task in a binary file. The file pointer must have write
  * binary permissions.
  **/
-void *task_save(KanbanTask *task, FILE *fp) {
+void task_save(void *task_raw, FILE *fp) {
+    KanbanTask *task = (KanbanTask *)task_raw;
     fwrite(&task->id, sizeof(long), 1, fp);
     fwrite(&task->priority, sizeof(int), 1, fp);
     fwrite(&task->creation_date, sizeof(time_t), 1, fp);
@@ -226,7 +229,7 @@ void *task_save(KanbanTask *task, FILE *fp) {
  * Loads a KanbanTask from the given file pointer. The file pointer must have
  * read binary permissions.
  **/
-KanbanTask *task_load(FILE *fp) {
+void *task_load(FILE *fp) {
     KanbanTask *task = malloc(sizeof(KanbanTask));
     int rlen = fread(&task->id, sizeof(long), 1, fp);
     if (rlen < 1) {
@@ -260,4 +263,50 @@ KanbanTask *task_load(FILE *fp) {
     fread(&task->state, sizeof(kanban_state), 1, fp);
 
     return task;
+}
+
+/**
+ * Comparator for KanbanTask (by priority and then by creation_date)
+ **/
+int task_todo_comparator(void *task1_raw, void *task2_raw) {
+    KanbanTask *task1 = (KanbanTask *)task1_raw;
+    KanbanTask *task2 = (KanbanTask *)task2_raw;
+
+    int result = task1->priority - task2->priority;
+
+    if (result == 0) {
+        result = task1->creation_date - task2->creation_date;
+    }
+
+    return result;
+}
+
+/**
+ * Comparator for KanbanTask (by worker_name)
+ **/
+int task_doing_comparator(void *task1_raw, void *task2_raw) {
+    KanbanTask *task1 = (KanbanTask *)task1_raw;
+    KanbanTask *task2 = (KanbanTask *)task2_raw;
+
+    return strcmp(task1->worker, task2->worker);
+}
+
+/**
+ * Comparator for KanbanTask (by finish_date)
+ **/
+int task_done_comparator(void *task1_raw, void *task2_raw) {
+    KanbanTask *task1 = (KanbanTask *)task1_raw;
+    KanbanTask *task2 = (KanbanTask *)task2_raw;
+
+    return task1->finish_date - task2->finish_date;
+}
+
+/**
+ * Comparator for KanbanTask (by creation_date)
+ **/
+int task_all_comparator(void *task1_raw, void *task2_raw) {
+    KanbanTask *task1 = (KanbanTask *)task1_raw;
+    KanbanTask *task2 = (KanbanTask *)task2_raw;
+
+    return task1->creation_date - task2->creation_date;
 }

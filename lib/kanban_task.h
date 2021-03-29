@@ -33,8 +33,16 @@ KanbanTask *task_set_state(KanbanTask *task, kanban_state state);
 
 KanbanTask *task_set_priority(KanbanTask *task, int priority);
 
-char *task_serialize(KanbanTask *task);
+char *task_serialize(void *task);
 
-void *task_save(KanbanTask *task, FILE *fp);
+void task_save(void *task, FILE *fp);
 
-KanbanTask *task_load(FILE *fp);
+void *task_load(FILE *fp);
+
+int task_todo_comparator(void *task1, void *task2);
+
+int task_doing_comparator(void *task1, void *task2);
+
+int task_done_comparator(void *task1, void *task2);
+
+int task_all_comparator(void *task1, void *task2);
