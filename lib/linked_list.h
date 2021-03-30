@@ -1,3 +1,7 @@
+#ifndef LINKED_LIST_H
+
+#define LINKED_LIST_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,3 +32,5 @@ char *list_serialize(Node *head, char *(*serializer)(void *));
 void list_save(Node *head, FILE *fp, void (*value_saver)(void *, FILE *));
 
 Node *list_load(FILE *fp, void *(*value_loader)(FILE *), size_t alloc_size);
+
+#endif

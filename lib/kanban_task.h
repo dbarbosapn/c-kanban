@@ -1,3 +1,7 @@
+#ifndef KANBAN_TASK_H
+
+#define KANBAN_TASK_H
+
 #include <stdio.h>
 #include <time.h>
 
@@ -46,3 +50,5 @@ int task_doing_comparator(void *task1, void *task2);
 int task_done_comparator(void *task1, void *task2);
 
 int task_all_comparator(void *task1, void *task2);
+
+#endif

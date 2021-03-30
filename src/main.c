@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "commands.h"
+#include "rendering.h"
 
 #define TASKS_FILE "data/all_tasks.bin"
+#define MAX_DOING 5
 
 /**
  * Checks if a file exists
@@ -89,12 +92,11 @@ Node* filter_tasks(Node* all_tasks, kanban_state filter) {
  * Renders a task list. Assumes the given linked list contains KanbanTask
  * values.
  **/
-void render_list(Node* list) {
-    char* str = list_serialize(list, task_serialize);
-    printf("%s\n", str);
-    free(str);
-
-    // TODO: Render in a more 'visual' way
+void render_list(kanban_state state, Node* list) {
+    render_list_header(state);
+    render_list_padding();
+    render_list_content(list);
+    render_list_footer();
 }
 
 /**
@@ -164,24 +166,19 @@ int main(int argc, char const* argv[]) {
     while (1) {
         putchar('\n');
 
-        printf("####################\n");
         switch (chosen_state) {
             case TODO:
                 curr_list = &todo_list;
-                printf("# ----- TODO ----- #\n");
                 break;
             case DOING:
                 curr_list = &doing_list;
-                printf("# ----- DOING ---- #\n");
                 break;
             case DONE:
                 curr_list = &done_list;
-                printf("# ----- DONE ----- #\n");
                 break;
         }
-        printf("####################\n");
 
-        render_list(*curr_list);
+        render_list(chosen_state, *curr_list);
 
         putchar('\n');
 
