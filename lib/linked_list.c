@@ -58,6 +58,10 @@ Node *list_add_inorder(Node *head, void *value, size_t alloc_size,
                        int (*comparator)(void *, void *)) {
     Node *node = create_node(value, alloc_size);
 
+    if (head == NULL) {
+        return node;
+    }
+
     // Edge case where the new node should be the new head
     if ((*comparator)(head->value, node->value) > 0) {
         node->next = head;
@@ -143,6 +147,7 @@ char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
         for (int j = 0; j < strlen(value); j++, i++) {
             buffer[i] = value[j];
         }
+
         free(value);
 
         if (curr->next != NULL) {
@@ -161,7 +166,7 @@ char *list_serialize(Node *head, char *(*value_serializer)(void *)) {
 /**
  * Saves the list in the given file. fp must have write binary permissions.
  **/
-void *list_save(Node *head, FILE *fp, void *(*value_saver)(void *, FILE *)) {
+void list_save(Node *head, FILE *fp, void (*value_saver)(void *, FILE *)) {
     Node *curr = head;
     while (curr != NULL) {
         (*value_saver)(curr->value, fp);
