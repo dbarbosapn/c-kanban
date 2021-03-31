@@ -91,6 +91,63 @@ void render_task_creation_date(KanbanTask* task) {
     putchar('\n');
 }
 
+void render_task_description(KanbanTask* task) {
+    size_t desc_len = strlen(task->description) + 13;
+    size_t line_max_len = PRINT_WIDTH - 6;
+    int lines = (desc_len + line_max_len - 1) / line_max_len;
+    char* desc_str = "Description: ";
+
+    for (int l = 0; l < lines; l++) {
+        putchar('#');
+        putchar('|');
+        putchar(' ');
+
+        int chars_left = desc_len - (line_max_len * l);
+        int n = chars_left < line_max_len ? chars_left : line_max_len;
+
+        for (int i = 0; i < n; i++) {
+            if (l == 0 && i < 13) {
+                putchar(desc_str[i]);
+            } else {
+                putchar(task->description[(l * line_max_len) + i - 13]);
+            }
+        }
+
+        if (chars_left < line_max_len) {
+            print_n_char(line_max_len - chars_left, ' ');
+        }
+
+        putchar(' ');
+        putchar('|');
+        putchar('#');
+        putchar('\n');
+    }
+}
+
+void render_task_worker(KanbanTask* task) {
+    putchar('#');
+    putchar('|');
+    printf(" Worker: %s", task->worker);
+    size_t worker_len = strlen(task->worker);
+    print_n_char((PRINT_WIDTH - worker_len - 13), ' ');
+    putchar('|');
+    putchar('#');
+    putchar('\n');
+}
+
+void render_task_deadline(KanbanTask* task) {
+    putchar('#');
+    putchar('|');
+    print_n_char((PRINT_WIDTH - 23) / 2, ' ');
+    Date* d = localtime(&task->deadline);
+    printf("Deadline: %02d/%02d/%04d", d->tm_mday, d->tm_mon + 1,
+           d->tm_year + 1900);
+    print_n_char((PRINT_WIDTH - 24) / 2, ' ');
+    putchar('|');
+    putchar('#');
+    putchar('\n');
+}
+
 void render_list_content(Node* head) {
     Node* curr = head;
     while (curr != NULL) {
@@ -101,10 +158,19 @@ void render_list_content(Node* head) {
 
         render_task_id(task);
         render_task_creation_date(task);
+        if (task->deadline != -1) render_task_deadline(task);
 
         render_card_padding();
-        render_card_bottom_line();
 
+        render_task_description(task);
+
+        render_card_padding();
+
+        if (task->worker != NULL) render_task_worker(task);
+
+        render_card_padding();
+
+        render_card_bottom_line();
         render_list_padding();
 
         curr = curr->next;

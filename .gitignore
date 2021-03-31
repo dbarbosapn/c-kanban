@@ -1,4 +1,5 @@
 bin/**
+!**/.keep
 **/*.out
 .vscode/
 **/*.bin
