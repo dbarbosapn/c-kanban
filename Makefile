@@ -1,7 +1,7 @@
 PROJECT_NAME := c-kanban
 
 COMPILER := gcc
-COMPILER_FLAGS := -Wall -g
+COMPILER_FLAGS := -Wall
 
 OUTPUT_FOLDER := bin
 TESTS_FOLDER := tests
