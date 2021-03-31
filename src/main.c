@@ -222,7 +222,7 @@ int main(int argc, char const* argv[]) {
                             scanf("%d/%d/%d", &d, &m, &y);
                             time_t curr_time;
                             time(&curr_time);
-                            Date* dead = localtime(&curr_time); //preguiça
+                            Date* dead = localtime(&curr_time); 
                             dead->tm_year = y - 1900;
                             dead->tm_mon = m - 1;
                             dead->tm_mday = d;
@@ -242,7 +242,7 @@ int main(int argc, char const* argv[]) {
                     print_result(result);
                     break;
                 case 'c':
-                     printf("Insert the task ID (must be in the selected list): ");
+                     printf("Insert the task ID: ");
                      scanf("%ld", &id);
                      getchar();
                      printf("Insert new worker's name: ");
@@ -253,7 +253,7 @@ int main(int argc, char const* argv[]) {
                      print_result(result);
                 break;
                 case 'e':
-                     printf("Insert the task ID (must be in the selected list): ");
+                     printf("Insert the task ID: ");
                      scanf("%ld", &id);
                      getchar();
                      result = command_end_task(&doing_list, &done_list, id);
@@ -261,7 +261,7 @@ int main(int argc, char const* argv[]) {
                      print_result(result);
                 break;
                 case 'o':
-                     printf("Insert the task ID (must be in the selected list): ");
+                     printf("Insert the task ID: ");
                      scanf("%ld", &id);
                      getchar();
                      result = command_reopen(&todo_list, &done_list, id);
