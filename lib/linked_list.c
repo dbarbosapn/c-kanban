@@ -198,3 +198,16 @@ Node *list_load(FILE *fp, void *(*value_loader)(FILE *), size_t alloc_size) {
 
     return head;
 }
+
+/**
+ * Returns list size
+ */
+int list_size(Node *head) {
+    int size = 0;
+    Node *curr = head;
+    while (curr != NULL) {
+        size++;
+        curr = curr->next;
+    }
+    return size;
+}

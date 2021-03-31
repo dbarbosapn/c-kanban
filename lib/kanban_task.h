@@ -6,6 +6,7 @@
 #include <time.h>
 
 #define TASK_SERIALIZE_BUFFER_SIZE 1024
+#define TASK_MAX_DOING 5
 
 typedef enum { TODO, DOING, DONE } kanban_state;
 

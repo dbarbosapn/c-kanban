@@ -33,4 +33,5 @@ void list_save(Node *head, FILE *fp, void (*value_saver)(void *, FILE *));
 
 Node *list_load(FILE *fp, void *(*value_loader)(FILE *), size_t alloc_size);
 
+int list_size(Node *head);
 #endif
