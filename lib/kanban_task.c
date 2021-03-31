@@ -215,7 +215,7 @@ void task_save(void *task_raw, FILE *fp) {
     if (task->worker != NULL) {
         lworker = strlen(task->worker);
         fwrite(&lworker, sizeof(int), 1, fp);
-        fwrite(task->worker, sizeof(char), ldesc, fp);
+        fwrite(task->worker, sizeof(char), lworker, fp);
     } else {
         fwrite(&lworker, sizeof(int), 1, fp);
     }
@@ -242,10 +242,14 @@ void *task_load(FILE *fp) {
 
     int ldesc;
     fread(&ldesc, sizeof(int), 1, fp);
-    char *description = malloc(sizeof(char) * ldesc + 1);
-    fread(description, sizeof(char), ldesc, fp);
-    description[ldesc] = '\0';
-    task->description = description;
+    if (ldesc > 0) {
+        char *description = malloc(sizeof(char) * ldesc + 1);
+        fread(description, sizeof(char), ldesc, fp);
+        description[ldesc] = '\0';
+        task->description = description;
+    } else {
+        task->description = "";
+    }
 
     int lworker;
     fread(&lworker, sizeof(int), 1, fp);
