@@ -62,6 +62,7 @@ int command_move_to_todo(Node **todo, Node **doing, long task_id) {
     KanbanTask *task = to_move->value;
 
     free(task->worker);
+    task->worker = NULL;
     task->deadline = -1;
     task->state = TODO;
 

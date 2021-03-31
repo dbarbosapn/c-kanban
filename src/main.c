@@ -139,6 +139,9 @@ void print_result(int result) {
 /**
  * Reads a string from the input, ended by a line break. Returns a pointer to
  * the string.
+ * NOTE: Since 'realloc' uses a lazy strategy where it tries to grow the
+ * space instead of copying everything and allocating again, and since we're
+ * running it in a loop with no other allocations, it will be efficient.
  **/
 char* read_string_input() {
     char* str = malloc(sizeof(char));
@@ -146,10 +149,11 @@ char* read_string_input() {
 
     char c;
     while ((c = getchar()) != '\n') {
-        if (counter > 0) str = realloc(str, (counter + 1) * sizeof(char));
+        if (counter > 0) str = realloc(str, (counter + 2) * sizeof(char));
         str[counter] = c;
         counter++;
     }
+    str[counter] = '\0';
 
     return str;
 }
