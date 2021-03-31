@@ -145,7 +145,6 @@ void print_result(int result) {
  **/
 char* read_string_input() {
     char* str = malloc(sizeof(char));
-    str[0] = '\0';
     int counter = 0;
 
     char c;
