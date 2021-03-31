@@ -24,6 +24,7 @@ int command_add_new_task(Node **all_tasks, Node **todo, long id, char *desc,
     return 0;
 }
 
+// o remove não verifica o state, ent remove de qualquer lista
 int command_remove_task(Node **all_tasks, Node **curr_list, long id) {
     Node *to_remove1 = get_task_using_id(*curr_list, id);
     if (to_remove1 == NULL) return -1;
@@ -74,6 +75,7 @@ int command_change_responsable(Node **doing, long task_id, char *worker) {
     Node *node = get_task_using_id(*doing, task_id);
     if (node == NULL) return -1;
     KanbanTask *to_change = node->value;
+    if (to_change->state != DOING) return -1;
 
     free(to_change->worker);
     to_change->worker = malloc(strlen(worker) + 1);
@@ -86,6 +88,7 @@ int command_end_task(Node **doing, Node **done, long task_id) {
     Node *to_move = get_task_using_id(*doing, task_id);
     if (to_move == NULL) return -1;
     KanbanTask *task = to_move->value;
+    if (task->state != DOING) return -1;
 
     time_t curr_time;
     time(&curr_time);

@@ -4,6 +4,7 @@
 int command_add_new_task(Node **all_tasks, Node **todo, long id, char *desc,
                          int priority);
 
+// o remove não verifica o state, ent remove de qualquer lista
 int command_remove_task(Node **all_tasks, Node **curr_list, long id);
 
 int command_move_to_doing(Node **todo, Node **doing, long task_id, char *worker,
