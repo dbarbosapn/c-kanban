@@ -220,13 +220,12 @@ int main(int argc, char const* argv[]) {
                         case TODO:
                             printf("Insert worker's name: ");
                             char* worker = read_string_input();
-                            free(worker);
                             int d, m, y;
                             printf("Insert deadline (dd/mm/yyyy): ");
                             scanf("%d/%d/%d", &d, &m, &y);
                             time_t curr_time;
                             time(&curr_time);
-                            Date* dead = localtime(&curr_time); 
+                            Date* dead = localtime(&curr_time);
                             dead->tm_year = y - 1900;
                             dead->tm_mon = m - 1;
                             dead->tm_mday = d;
@@ -246,32 +245,31 @@ int main(int argc, char const* argv[]) {
                     print_result(result);
                     break;
                 case 'c':
-                     printf("Insert the task ID: ");
-                     scanf("%ld", &id);
-                     getchar();
-                     printf("Insert new worker's name: ");
-                     char* worker = read_string_input();
-                     result = command_change_responsable(&doing_list, id, worker);
-                     free(worker);
-                     system("clear");
-                     print_result(result);
-                break;
+                    printf("Insert the task ID: ");
+                    scanf("%ld", &id);
+                    getchar();
+                    printf("Insert new worker's name: ");
+                    char* worker = read_string_input();
+                    result = command_change_worker(&doing_list, id, worker);
+                    system("clear");
+                    print_result(result);
+                    break;
                 case 'e':
-                     printf("Insert the task ID: ");
-                     scanf("%ld", &id);
-                     getchar();
-                     result = command_end_task(&doing_list, &done_list, id);
-                     system("clear");
-                     print_result(result);
-                break;
+                    printf("Insert the task ID: ");
+                    scanf("%ld", &id);
+                    getchar();
+                    result = command_end_task(&doing_list, &done_list, id);
+                    system("clear");
+                    print_result(result);
+                    break;
                 case 'o':
-                     printf("Insert the task ID: ");
-                     scanf("%ld", &id);
-                     getchar();
-                     result = command_reopen(&todo_list, &done_list, id);
-                     system("clear");
-                     print_result(result);
-                break;
+                    printf("Insert the task ID: ");
+                    scanf("%ld", &id);
+                    getchar();
+                    result = command_reopen(&todo_list, &done_list, id);
+                    system("clear");
+                    print_result(result);
+                    break;
                 case 'l':
                     printf("Insert the list (0:TODO/1:DOING/2:DONE): ");
                     int l = -1;

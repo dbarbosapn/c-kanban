@@ -24,7 +24,6 @@ int command_add_new_task(Node **all_tasks, Node **todo, long id, char *desc,
     return 0;
 }
 
-// o remove não verifica o state, ent remove de qualquer lista
 int command_remove_task(Node **all_tasks, Node **curr_list, long id) {
     Node *to_remove1 = get_task_using_id(*curr_list, id);
     if (to_remove1 == NULL) return -1;
@@ -45,8 +44,7 @@ int command_move_to_doing(Node **todo, Node **doing, long task_id, char *worker,
     if (to_move == NULL || list_size(*doing) == TASK_MAX_DOING) return -1;
     KanbanTask *task = (KanbanTask *)to_move->value;
 
-    task->worker = malloc(strlen(worker) + 1);
-    strcpy(task->worker, worker);
+    task->worker = worker;
     task->state = DOING;
     task->deadline = deadline;
 
@@ -72,15 +70,18 @@ int command_move_to_todo(Node **todo, Node **doing, long task_id) {
     return 0;
 }
 
-int command_change_responsable(Node **doing, long task_id, char *worker) {
+int command_change_worker(Node **doing, long task_id, char *worker) {
     Node *node = get_task_using_id(*doing, task_id);
     if (node == NULL) return -1;
-    KanbanTask *to_change = node->value;
+    KanbanTask *to_change = (KanbanTask *)node->value;
     if (to_change->state != DOING) return -1;
 
+    *doing = list_remove(*doing, node);
+
     free(to_change->worker);
-    to_change->worker = malloc(strlen(worker) + 1);
-    strcpy(to_change->worker, worker);
+    to_change->worker = worker;
+
+    *doing = list_add_inorder(*doing, to_change, 0, task_doing_comparator);
 
     return 0;
 }
@@ -107,6 +108,7 @@ int command_reopen(Node **todo, Node **done, long task_id) {
     KanbanTask *task = to_move->value;
 
     free(task->worker);
+    task->worker = NULL;
     task->deadline = -1;
     task->finish_date = -1;
     task->state = TODO;
