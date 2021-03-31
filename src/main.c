@@ -6,7 +6,6 @@
 #include "rendering.h"
 
 #define TASKS_FILE "data/all_tasks.bin"
-#define MAX_DOING 5
 
 /**
  * Checks if a file exists
@@ -102,9 +101,25 @@ void render_list(kanban_state state, Node* list) {
 /**
  * Renders the command list
  **/
-void render_commands() {
+void render_commands(kanban_state state) {
+    switch (state) {
+         case TODO:
+         printf("a: Add new task\n");
+         printf("m: Move task to doing\n");
+         break;
+
+         case DOING:
+         printf("m: Move task to todo\n");
+         printf("c: Change responsible\n");
+         printf("e: End task\n");
+         break;
+
+         case DONE:
+         printf("o: Reopen task\n");
+
+         break;
+    }
     printf("l: Change current list\n");
-    printf("a: Add new task\n");
     printf("r: Remove task\n");
     printf("q: Quit (and save)\n");
 
@@ -182,7 +197,7 @@ int main(int argc, char const* argv[]) {
 
         putchar('\n');
 
-        render_commands();
+        render_commands(chosen_state);
         printf("\nInsert command: ");
         int items_read = scanf(" %c", &chosen_command);
         getchar();
@@ -191,7 +206,36 @@ int main(int argc, char const* argv[]) {
             printf("Invalid input. Please try again.\n");
         } else {
             int result;
+            long id;
             switch (chosen_command) {
+                case 'm':
+                   printf("Insert the task ID (must be in the selected list): ");
+                   scanf("%ld",&id );
+                   switch (chosen_state) {
+                        case TODO:
+                        printf("Insert the worker's name: ");
+                        getchar();
+                        char* worker = read_string_input();
+                        int d,m,y;
+                        printf("Insert the deadline (dd/mm/yyyy): ");
+                        scanf("%d/%d/%d", &d, &m, &y);
+                        time_t curr_time;
+                        time(&curr_time);
+                        Date *dead = localtime(&curr_time);;
+                        dead->tm_year=y-1900;
+                        dead->tm_mon=m-1;
+                        dead->tm_mday=d;
+                        result = command_move_to_doing(&todo_list, &doing_list, id, worker, mktime(dead));
+                        break;
+
+                        case DOING: result = command_move_to_todo(&todo_list, &doing_list, id);
+                        break;
+                        case DONE: result=-1;
+
+                   }
+                   system("clear");
+                   print_result(result);
+                   break;
                 case 'l':
                     printf("Insert the list (0:TODO/1:DOING/2:DONE): ");
                     int l = -1;
@@ -215,12 +259,12 @@ int main(int argc, char const* argv[]) {
                     result = command_add_new_task(&all_tasks, &todo_list,
                                                   curr_id, desc, priority);
                     print_result(result);
+                    curr_id++;
                     break;
 
                 case 'r':
                     printf(
                         "Insert the task ID (must be in the selected list): ");
-                    long id;
                     scanf("%ld", &id);
                     system("clear");
                     result = command_remove_task(&all_tasks, curr_list, id);
