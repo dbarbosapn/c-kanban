@@ -242,14 +242,10 @@ void *task_load(FILE *fp) {
 
     int ldesc;
     fread(&ldesc, sizeof(int), 1, fp);
-    if (ldesc > 0) {
-        char *description = malloc(sizeof(char) * ldesc + 1);
-        fread(description, sizeof(char), ldesc, fp);
-        description[ldesc] = '\0';
-        task->description = description;
-    } else {
-        task->description = "";
-    }
+    char *description = malloc(sizeof(char) * ldesc + 1);
+    fread(description, sizeof(char), ldesc, fp);
+    description[ldesc] = '\0';
+    task->description = description;
 
     int lworker;
     fread(&lworker, sizeof(int), 1, fp);
