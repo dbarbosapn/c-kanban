@@ -103,6 +103,21 @@ void run_test_linked_list() {
     free(task_list1);
     delete_task(task3);
     delete_task(task4);
+
+
+    // STEP 6
+    printf("-- STEP #6: ");
+    int p = 2;
+    Node *empty_list;
+    Node *unempty_list = create_node(&p,sizeof(int));
+    unempty_list->next = create_node(&p,sizeof(int));
+    if (list_size(unempty_list) != 2)
+        printf("FAILED\n");
+    else
+        printf("PASSED\n");
+
+    free(unempty_list->next);
+    free(unempty_list);
 }
 
 void run_test_task() {
@@ -113,7 +128,7 @@ void run_test_task() {
     KanbanTask* t1 = create_task(1, str1, 10);
     task_assign(t1, str2);
     if (strncmp(t1->description, str1, strlen(str1)) != 0 ||
-        strncmp(t1->worker, str2, strlen(str2)) != 0 || t1->deadline != NULL ||
+        strncmp(t1->worker, str2, strlen(str2)) != 0 || t1->deadline != -1 ||
         t1->state != TODO || t1->priority != 10) {
         printf("FAILED\n");
     } else {
