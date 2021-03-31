@@ -1,8 +1,6 @@
-#include "linked_list.h"
+#include <linked_list.h>
 #include <stdint.h>
 #include <string.h>
-
-#define LIST_SERIALIZE_BUFFER_SIZE 4096
 
 /**
  * Creates a new node with the given value.
@@ -205,11 +203,11 @@ Node *list_load(FILE *fp, void *(*value_loader)(FILE *), size_t alloc_size) {
  * Returns list size
  */
 int list_size(Node *head) {
-     int size = 0;
-     Node *curr = head;
-     while(curr != NULL) {
-          size++;
-          curr = curr->next;
-     }
-     return size;
+    int size = 0;
+    Node *curr = head;
+    while (curr != NULL) {
+        size++;
+        curr = curr->next;
+    }
+    return size;
 }

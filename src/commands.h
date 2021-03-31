@@ -1,9 +1,6 @@
 #include <kanban_task.h>
 #include <linked_list.h>
 
-#define MAX_DOING 5
-
-
 int command_add_new_task(Node **all_tasks, Node **todo, long id, char *desc,
                          int priority);
 

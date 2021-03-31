@@ -104,13 +104,12 @@ void run_test_linked_list() {
     delete_task(task3);
     delete_task(task4);
 
-
     // STEP 6
     printf("-- STEP #6: ");
     int p = 2;
-    Node *empty_list;
-    Node *unempty_list = create_node(&p,sizeof(int));
-    unempty_list->next = create_node(&p,sizeof(int));
+    Node* empty_list;
+    Node* unempty_list = create_node(&p, sizeof(int));
+    unempty_list->next = create_node(&p, sizeof(int));
     if (list_size(unempty_list) != 2)
         printf("FAILED\n");
     else

@@ -2,7 +2,6 @@
 
 #include <string.h>
 
-
 Node *get_task_using_id(Node *head, long task_id) {
     Node *curr = head;
     while (curr != NULL) {
@@ -14,10 +13,9 @@ Node *get_task_using_id(Node *head, long task_id) {
     return curr;
 }
 
-
 int command_add_new_task(Node **all_tasks, Node **todo, long id, char *desc,
                          int priority) {
-    if(priority < 1 || priority >10) return -1;
+    if (priority < 1 || priority > 10) return -1;
 
     KanbanTask *task = create_task(id, desc, priority);
     *all_tasks = list_add_inorder(*all_tasks, task, 0, task_all_comparator);
@@ -40,14 +38,10 @@ int command_remove_task(Node **all_tasks, Node **curr_list, long id) {
     return 0;
 }
 
-
-
-
-
 int command_move_to_doing(Node **todo, Node **doing, long task_id, char *worker,
                           time_t deadline) {
     Node *to_move = get_task_using_id(*todo, task_id);
-    if (to_move == NULL || list_size(*doing) == MAX_DOING) return -1;
+    if (to_move == NULL || list_size(*doing) == TASK_MAX_DOING) return -1;
     KanbanTask *task = (KanbanTask *)to_move->value;
 
     task->worker = malloc(strlen(worker) + 1);

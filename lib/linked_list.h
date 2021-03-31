@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define LIST_SERIALIZE_BUFFER_SIZE 4096
 
 typedef struct node {
     void *value;
