@@ -22,6 +22,9 @@ void render_list_header(kanban_state state) {
         case DONE:
             list_name = "DONE";
             break;
+        case ALL:
+            list_name = "ALL";
+            break;
     }
     size_t ln_len = strlen(list_name);
     putchar('#');
