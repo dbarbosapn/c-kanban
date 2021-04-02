@@ -95,7 +95,7 @@ Node* filter_tasks(Node* all_tasks, kanban_state filter) {
  * values.
  **/
 void render_list(kanban_state state, Node* list) {
-    render_list_header(state);
+    render_list_header(state, list);
     render_list_padding();
     render_list_content(list);
     render_list_footer();

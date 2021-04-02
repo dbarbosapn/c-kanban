@@ -8,16 +8,19 @@ void print_n_char(int n, char c) {
     while (n--) putchar(c);
 }
 
-void render_list_header(kanban_state state) {
+void render_list_header(kanban_state state, Node* list) {
     print_n_char(PRINT_WIDTH, '#');
     putchar('\n');
     char* list_name;
+    char buffer[20];
+
     switch (state) {
         case TODO:
             list_name = "TODO";
             break;
         case DOING:
-            list_name = "DOING";
+            sprintf(buffer, "DOING (%d/%d)", list_size(list), TASK_MAX_DOING);
+            list_name = buffer;
             break;
         case DONE:
             list_name = "DONE";
