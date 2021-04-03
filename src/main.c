@@ -129,6 +129,7 @@ void render_commands(kanban_state state) {
             break;
     }
     printf("l: Change current list\n");
+    printf("s: Save\n");
     printf("q: Quit (and save)\n");
 }
 
@@ -237,6 +238,7 @@ int main(int argc, char const* argv[]) {
         printf("\nInsert command: ");
         chosen_command = read_string_input();
         int items_read = strlen(chosen_command);
+        int dont_clear = 0;
         if (items_read != 1) {
             system("clear");
             printf("Invalid input (%s). Please try again.\n", chosen_command);
@@ -278,7 +280,6 @@ int main(int argc, char const* argv[]) {
                             result = -1;
                             break;
                     }
-                    system("clear");
                     break;
 
                 case 'c':
@@ -288,7 +289,6 @@ int main(int argc, char const* argv[]) {
                     printf("Insert new worker's name: ");
                     char* worker = read_string_input();
                     result = command_change_worker(&doing_list, id, worker);
-                    system("clear");
                     break;
 
                 case 'e':
@@ -296,7 +296,6 @@ int main(int argc, char const* argv[]) {
                     result = read_long_input(&id);
                     if (result == -1) break;
                     result = command_end_task(&doing_list, &done_list, id);
-                    system("clear");
                     break;
 
                 case 'o':
@@ -304,9 +303,6 @@ int main(int argc, char const* argv[]) {
                     result = read_long_input(&id);
                     if (result == -1) break;
                     result = command_reopen(&todo_list, &done_list, id);
-                    system("clear");
-                    print_result(result);
-                    system("clear");
                     break;
 
                 case 'l':
@@ -320,7 +316,6 @@ int main(int argc, char const* argv[]) {
                     } else {
                         result = -1;
                     }
-                    system("clear");
                     break;
 
                 case 'a':
@@ -333,7 +328,6 @@ int main(int argc, char const* argv[]) {
                     result = command_add_new_task(&all_tasks, &todo_list,
                                                   curr_id, desc, priority);
                     curr_id++;
-                    system("clear");
                     break;
 
                 case 'r':
@@ -345,7 +339,13 @@ int main(int argc, char const* argv[]) {
                     } else {
                         result = -1;
                     }
+                    break;
+
+                case 's':
                     system("clear");
+                    printf("Saving data...\n");
+                    save_data(all_tasks);
+                    dont_clear = 1;
                     break;
 
                 case 'q':
@@ -360,7 +360,13 @@ int main(int argc, char const* argv[]) {
                     result = -1;
                     printf("Invalid command (%s). Please try again.\n",
                            chosen_command);
+                    dont_clear = 1;
                     break;
+            }
+            if (dont_clear) {
+                dont_clear = 0;
+            } else {
+                system("clear");
             }
             print_result(result);
         }

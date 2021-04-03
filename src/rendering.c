@@ -179,6 +179,32 @@ void render_task_priority(KanbanTask* task) {
     putchar('\n');
 }
 
+void render_task_state(KanbanTask* task) {
+    putchar('#');
+    putchar('|');
+    char* state_name;
+    switch (task->state) {
+        case TODO:
+            state_name = "TODO";
+            break;
+        case DOING:
+            state_name = "DOING";
+            break;
+        case DONE:
+            state_name = "DONE";
+            break;
+        case ALL:
+            // Ignore
+            break;
+    }
+    printf(" State: %s", state_name);
+    size_t len = 12 + strlen(state_name);
+    print_n_char((PRINT_WIDTH - len), ' ');
+    putchar('|');
+    putchar('#');
+    putchar('\n');
+}
+
 void render_list_content(Node* head) {
     Node* curr = head;
     while (curr != NULL) {
@@ -195,6 +221,7 @@ void render_list_content(Node* head) {
 
         render_card_padding();
 
+        render_task_state(task);
         render_task_description(task);
 
         render_card_padding();
