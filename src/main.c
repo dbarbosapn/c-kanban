@@ -183,7 +183,7 @@ int main(int argc, char const* argv[]) {
     curr_id = get_max_id(all_tasks) + 1;
     printf("Loaded!\n");
 
-    char chosen_command = 0;
+    char* chosen_command = 0;
     kanban_state chosen_state = TODO;
     Node** curr_list;
 
@@ -211,15 +211,15 @@ int main(int argc, char const* argv[]) {
 
         render_commands(chosen_state);
         printf("\nInsert command: ");
-        int items_read = scanf(" %c", &chosen_command);
-        getchar();
+        chosen_command = read_string_input();
+        int items_read = strlen(chosen_command);
         if (items_read != 1) {
-            system("clear");
-            printf("Invalid input. Please try again.\n");
+             system("clear");
+             printf("Invalid input (%s). Please try again.\n", chosen_command);
         } else {
             int result;
             long id;
-            switch (chosen_command) {
+            switch (chosen_command[0]) {
                 case 'm':
                     printf("Insert the task ID (on the current list): ");
                     scanf("%ld", &id);
@@ -231,6 +231,7 @@ int main(int argc, char const* argv[]) {
                             int d, m, y;
                             printf("Insert deadline (dd/mm/yyyy): ");
                             scanf("%d/%d/%d", &d, &m, &y);
+                            getchar();
                             time_t curr_time;
                             time(&curr_time);
                             Date* dead = localtime(&curr_time);
@@ -286,6 +287,7 @@ int main(int argc, char const* argv[]) {
                     printf("Insert the list (0:TODO/1:DOING/2:DONE/3:ALL): ");
                     int l = -1;
                     scanf("%d", &l);
+                    getchar();
                     system("clear");
                     if (l >= 0 && l <= 3) {
                         chosen_state = l;
@@ -301,6 +303,7 @@ int main(int argc, char const* argv[]) {
                     printf("Insert the task priority: ");
                     int priority;
                     scanf("%d", &priority);
+                    getchar();
                     system("clear");
                     result = command_add_new_task(&all_tasks, &todo_list,
                                                   curr_id, desc, priority);
@@ -312,6 +315,7 @@ int main(int argc, char const* argv[]) {
                     if (chosen_state >= 0 && chosen_state <= 2) {
                         printf("Insert the task ID (on the current list): ");
                         scanf("%ld", &id);
+                        getchar();
                         result = command_remove_task(&all_tasks, curr_list, id);
                     } else {
                         result = -1;
@@ -329,11 +333,11 @@ int main(int argc, char const* argv[]) {
 
                 default:
                     system("clear");
-                    printf("Invalid command (%c). Please try again.\n",
-                           chosen_command);
+                    printf("Invalid command (%s). Please try again.\n", chosen_command);
                     break;
             }
         }
+        free(chosen_command);
     }
     return 0;
 }
