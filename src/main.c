@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "commands.h"
 #include "rendering.h"
@@ -164,6 +165,72 @@ char* read_string_input() {
     return str;
 }
 
+
+void clear_input() {
+     char c;
+     while ((c = getchar()) != '\n') {};
+}
+
+int read_date_input(int* day, int* month, int* year) {
+     char* strs[3];   // dd/mm/yyyy
+     strs[0] = malloc(sizeof(char)*3);
+     strs[1] = malloc(sizeof(char)*3);
+     strs[2] = malloc(sizeof(char)*5);
+     int counter = 0;
+     char c, sep = '/';
+
+     for(int i=0; i<3; i++) {
+          if(i==2) sep = '\n';
+          while ((c = getchar()) != sep) {
+               if(!isdigit(c) ||isspace(c) || ((i==2)?counter>=4:counter>=2)  ){
+                    if(c!='\n') clear_input();
+                    return -1;
+               }
+               strs[i][counter] = c;
+               counter++;
+          }
+          strs[i][counter] = '\0';
+          if(counter==0 ) return -1;
+          switch (i) {
+               case 0:
+               *day = atoi((char *)strs[i]);
+               break;
+               case 1:
+               *month = atoi((char *)strs[i]);
+               break;
+               case 2:
+               *year = atoi((char *)strs[i]);
+               break;
+          }
+          counter=0;
+     }
+
+     for(int i=0; i<3;i++) free(strs[i]);
+
+     return 0;
+}
+
+
+int read_long_input(long* id) {
+     char* str = malloc(sizeof(char));
+     int counter = 0;
+     char c;
+     int error_flag=0;
+     while ((c = getchar()) != '\n') {
+          if(!isdigit(c)) error_flag = -1;
+          str = realloc(str, (counter + 2) * sizeof(char));
+          str[counter] = c;
+          counter++;
+     }
+     str[counter] = '\0';
+
+     if(error_flag == 0) {
+          *id=atoi(str);
+     }
+     free(str);
+     return error_flag;
+}
+
 int main(int argc, char const* argv[]) {
     system("clear");
 
@@ -222,16 +289,16 @@ int main(int argc, char const* argv[]) {
             switch (chosen_command[0]) {
                 case 'm':
                     printf("Insert the task ID (on the current list): ");
-                    scanf("%ld", &id);
-                    getchar();
+                    result = read_long_input(&id);
+                    if(result == -1) break;
                     switch (chosen_state) {
                         case TODO:
                             printf("Insert worker's name: ");
                             char* worker = read_string_input();
                             int d, m, y;
                             printf("Insert deadline (dd/mm/yyyy): ");
-                            scanf("%d/%d/%d", &d, &m, &y);
-                            getchar();
+                            result = read_date_input(&d, &m, &y);
+                            if(result == -1) break;
                             time_t curr_time;
                             time(&curr_time);
                             Date* dead = localtime(&curr_time);
@@ -254,46 +321,39 @@ int main(int argc, char const* argv[]) {
                             result = -1;
                             break;
                     }
-                    system("clear");
-                    print_result(result);
                     break;
                 case 'c':
                     printf("Insert the task ID: ");
-                    scanf("%ld", &id);
-                    getchar();
+                    result = read_long_input(&id);
+                    if(result == -1) break;
                     printf("Insert new worker's name: ");
                     char* worker = read_string_input();
                     result = command_change_worker(&doing_list, id, worker);
-                    system("clear");
-                    print_result(result);
                     break;
                 case 'e':
                     printf("Insert the task ID: ");
-                    scanf("%ld", &id);
-                    getchar();
+                    result = read_long_input(&id);
+                    if(result == -1) break;
                     result = command_end_task(&doing_list, &done_list, id);
-                    system("clear");
-                    print_result(result);
                     break;
                 case 'o':
                     printf("Insert the task ID: ");
-                    scanf("%ld", &id);
-                    getchar();
+                    result = read_long_input(&id);
+                    if(result == -1) break;
                     result = command_reopen(&todo_list, &done_list, id);
                     system("clear");
                     print_result(result);
                     break;
                 case 'l':
                     printf("Insert the list (0:TODO/1:DOING/2:DONE/3:ALL): ");
-                    int l = -1;
-                    scanf("%d", &l);
-                    getchar();
-                    system("clear");
+                    long l = -1;
+                    result = read_long_input(&l);
+                    if(result == -1) break;
                     if (l >= 0 && l <= 3) {
                         chosen_state = l;
-                        print_result(0);
+                        result = 0;
                     } else {
-                        print_result(-1);
+                        result = -1;
                     }
                     break;
 
@@ -301,27 +361,23 @@ int main(int argc, char const* argv[]) {
                     printf("Insert the task description: ");
                     char* desc = read_string_input();
                     printf("Insert the task priority: ");
-                    int priority;
-                    scanf("%d", &priority);
-                    getchar();
-                    system("clear");
+                    long priority;
+                    result = read_long_input(&priority);
+                    if(result == -1) break;
                     result = command_add_new_task(&all_tasks, &todo_list,
                                                   curr_id, desc, priority);
-                    print_result(result);
                     curr_id++;
                     break;
 
                 case 'r':
                     if (chosen_state >= 0 && chosen_state <= 2) {
                         printf("Insert the task ID (on the current list): ");
-                        scanf("%ld", &id);
-                        getchar();
+                        result = read_long_input(&id);
+                        if(result == -1) break;
                         result = command_remove_task(&all_tasks, curr_list, id);
                     } else {
                         result = -1;
                     }
-                    system("clear");
-                    print_result(result);
                     break;
 
                 case 'q':
@@ -333,9 +389,12 @@ int main(int argc, char const* argv[]) {
 
                 default:
                     system("clear");
+                    result = -1;
                     printf("Invalid command (%s). Please try again.\n", chosen_command);
                     break;
             }
+            system("clear");
+            print_result(result);
         }
         free(chosen_command);
     }
