@@ -8,19 +8,25 @@ void print_n_char(int n, char c) {
     while (n--) putchar(c);
 }
 
-void render_list_header(kanban_state state) {
+void render_list_header(kanban_state state, Node* list) {
     print_n_char(PRINT_WIDTH, '#');
     putchar('\n');
     char* list_name;
+    char buffer[20];
+
     switch (state) {
         case TODO:
             list_name = "TODO";
             break;
         case DOING:
-            list_name = "DOING";
+            sprintf(buffer, "DOING (%d/%d)", list_size(list), TASK_MAX_DOING);
+            list_name = buffer;
             break;
         case DONE:
             list_name = "DONE";
+            break;
+        case ALL:
+            list_name = "ALL";
             break;
     }
     size_t ln_len = strlen(list_name);
@@ -81,11 +87,11 @@ void render_task_id(KanbanTask* task) {
 void render_task_creation_date(KanbanTask* task) {
     putchar('#');
     putchar('|');
-    print_n_char((PRINT_WIDTH - 28) / 2, ' ');
+    print_n_char((PRINT_WIDTH - 29) / 2, ' ');
     Date* d = localtime(&task->creation_date);
     printf("Creation Date: %02d/%02d/%04d", d->tm_mday, d->tm_mon + 1,
            d->tm_year + 1900);
-    print_n_char((PRINT_WIDTH - 29) / 2, ' ');
+    print_n_char((PRINT_WIDTH - 28) / 2, ' ');
     putchar('|');
     putchar('#');
     putchar('\n');
@@ -138,11 +144,36 @@ void render_task_worker(KanbanTask* task) {
 void render_task_deadline(KanbanTask* task) {
     putchar('#');
     putchar('|');
-    print_n_char((PRINT_WIDTH - 23) / 2, ' ');
+    print_n_char((PRINT_WIDTH - 24) / 2, ' ');
     Date* d = localtime(&task->deadline);
     printf("Deadline: %02d/%02d/%04d", d->tm_mday, d->tm_mon + 1,
            d->tm_year + 1900);
-    print_n_char((PRINT_WIDTH - 24) / 2, ' ');
+    print_n_char((PRINT_WIDTH - 23) / 2, ' ');
+    putchar('|');
+    putchar('#');
+    putchar('\n');
+}
+
+void render_task_finish(KanbanTask* task) {
+    putchar('#');
+    putchar('|');
+    print_n_char((PRINT_WIDTH - 27) / 2, ' ');
+    Date* d = localtime(&task->finish_date);
+    printf("Finished At: %02d/%02d/%04d", d->tm_mday, d->tm_mon + 1,
+           d->tm_year + 1900);
+    print_n_char((PRINT_WIDTH - 26) / 2, ' ');
+    putchar('|');
+    putchar('#');
+    putchar('\n');
+}
+
+void render_task_priority(KanbanTask* task) {
+    putchar('#');
+    putchar('|');
+    int digits = num_digits(task->priority);
+    print_n_char((PRINT_WIDTH - digits - 14) / 2, ' ');
+    printf("Priority: %d", task->priority);
+    print_n_char((PRINT_WIDTH - digits - 13) / 2, ' ');
     putchar('|');
     putchar('#');
     putchar('\n');
@@ -157,8 +188,10 @@ void render_list_content(Node* head) {
         render_card_padding();
 
         render_task_id(task);
+        render_task_priority(task);
         render_task_creation_date(task);
         if (task->deadline != -1) render_task_deadline(task);
+        if (task->finish_date != -1) render_task_finish(task);
 
         render_card_padding();
 

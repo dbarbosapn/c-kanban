@@ -8,7 +8,7 @@
 #define TASK_SERIALIZE_BUFFER_SIZE 1024
 #define TASK_MAX_DOING 5
 
-typedef enum { TODO, DOING, DONE } kanban_state;
+typedef enum { TODO, DOING, DONE, ALL } kanban_state;
 
 typedef struct tm Date;  // defined in time.h; hours, minutes and seconds
                          // aren't initialized

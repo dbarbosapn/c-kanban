@@ -78,6 +78,9 @@ Node* filter_tasks(Node* all_tasks, kanban_state filter) {
                     new_list = list_add_inorder(new_list, task, 0,
                                                 task_done_comparator);
                     break;
+                case ALL:
+                    // Should not exist
+                    break;
             }
         }
 
@@ -92,7 +95,7 @@ Node* filter_tasks(Node* all_tasks, kanban_state filter) {
  * values.
  **/
 void render_list(kanban_state state, Node* list) {
-    render_list_header(state);
+    render_list_header(state, list);
     render_list_padding();
     render_list_content(list);
     render_list_footer();
@@ -106,23 +109,26 @@ void render_commands(kanban_state state) {
         case TODO:
             printf("a: Add new task\n");
             printf("m: Move task to doing\n");
+            printf("r: Remove task\n");
             break;
 
         case DOING:
             printf("m: Move task to todo\n");
             printf("c: Change worker\n");
             printf("e: End task\n");
+            printf("r: Remove task\n");
             break;
 
         case DONE:
             printf("o: Reopen task\n");
+            printf("r: Remove task\n");
+            break;
+        case ALL:
+            // No special commands
             break;
     }
     printf("l: Change current list\n");
-    printf("r: Remove task\n");
     printf("q: Quit (and save)\n");
-
-    // TODO: Implement all commands
 }
 
 /**
@@ -194,6 +200,9 @@ int main(int argc, char const* argv[]) {
             case DONE:
                 curr_list = &done_list;
                 break;
+            case ALL:
+                curr_list = &all_tasks;
+                break;
         }
 
         render_list(chosen_state, *curr_list);
@@ -212,21 +221,19 @@ int main(int argc, char const* argv[]) {
             long id;
             switch (chosen_command) {
                 case 'm':
-                    printf(
-                        "Insert the task ID (must be in the selected list): ");
+                    printf("Insert the task ID (on the current list): ");
                     scanf("%ld", &id);
                     getchar();
                     switch (chosen_state) {
                         case TODO:
                             printf("Insert worker's name: ");
                             char* worker = read_string_input();
-                            free(worker);
                             int d, m, y;
                             printf("Insert deadline (dd/mm/yyyy): ");
                             scanf("%d/%d/%d", &d, &m, &y);
                             time_t curr_time;
                             time(&curr_time);
-                            Date* dead = localtime(&curr_time); 
+                            Date* dead = localtime(&curr_time);
                             dead->tm_year = y - 1900;
                             dead->tm_mon = m - 1;
                             dead->tm_mday = d;
@@ -241,43 +248,46 @@ int main(int argc, char const* argv[]) {
                             break;
                         case DONE:
                             result = -1;
+                            break;
+                        case ALL:
+                            result = -1;
+                            break;
                     }
                     system("clear");
                     print_result(result);
                     break;
                 case 'c':
-                     printf("Insert the task ID: ");
-                     scanf("%ld", &id);
-                     getchar();
-                     printf("Insert new worker's name: ");
-                     char* worker = read_string_input();
-                     result = command_change_responsable(&doing_list, id, worker);
-                     free(worker);
-                     system("clear");
-                     print_result(result);
-                break;
+                    printf("Insert the task ID: ");
+                    scanf("%ld", &id);
+                    getchar();
+                    printf("Insert new worker's name: ");
+                    char* worker = read_string_input();
+                    result = command_change_worker(&doing_list, id, worker);
+                    system("clear");
+                    print_result(result);
+                    break;
                 case 'e':
-                     printf("Insert the task ID: ");
-                     scanf("%ld", &id);
-                     getchar();
-                     result = command_end_task(&doing_list, &done_list, id);
-                     system("clear");
-                     print_result(result);
-                break;
+                    printf("Insert the task ID: ");
+                    scanf("%ld", &id);
+                    getchar();
+                    result = command_end_task(&doing_list, &done_list, id);
+                    system("clear");
+                    print_result(result);
+                    break;
                 case 'o':
-                     printf("Insert the task ID: ");
-                     scanf("%ld", &id);
-                     getchar();
-                     result = command_reopen(&todo_list, &done_list, id);
-                     system("clear");
-                     print_result(result);
-                break;
+                    printf("Insert the task ID: ");
+                    scanf("%ld", &id);
+                    getchar();
+                    result = command_reopen(&todo_list, &done_list, id);
+                    system("clear");
+                    print_result(result);
+                    break;
                 case 'l':
-                    printf("Insert the list (0:TODO/1:DOING/2:DONE): ");
+                    printf("Insert the list (0:TODO/1:DOING/2:DONE/3:ALL): ");
                     int l = -1;
                     scanf("%d", &l);
                     system("clear");
-                    if (l >= 0 && l <= 2) {
+                    if (l >= 0 && l <= 3) {
                         chosen_state = l;
                         print_result(0);
                     } else {
@@ -299,11 +309,14 @@ int main(int argc, char const* argv[]) {
                     break;
 
                 case 'r':
-                    printf(
-                        "Insert the task ID (must be in the selected list): ");
-                    scanf("%ld", &id);
+                    if (chosen_state >= 0 && chosen_state <= 2) {
+                        printf("Insert the task ID (on the current list): ");
+                        scanf("%ld", &id);
+                        result = command_remove_task(&all_tasks, curr_list, id);
+                    } else {
+                        result = -1;
+                    }
                     system("clear");
-                    result = command_remove_task(&all_tasks, curr_list, id);
                     print_result(result);
                     break;
 
