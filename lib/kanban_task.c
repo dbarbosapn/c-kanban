@@ -272,7 +272,7 @@ int task_todo_comparator(void *task1_raw, void *task2_raw) {
     KanbanTask *task1 = (KanbanTask *)task1_raw;
     KanbanTask *task2 = (KanbanTask *)task2_raw;
 
-    int result = task1->priority - task2->priority;
+    int result = task2->priority - task1->priority;
 
     if (result == 0) {
         result = task1->creation_date - task2->creation_date;
