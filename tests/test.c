@@ -132,7 +132,7 @@ void run_test_task() {
         printf("FAILED\n");
     } else {
         printf("PASSED\n");
-        printf("-- Today is: %s", asctime(localtime(&t1->creation_date)));
+        printf("Today is: %s", asctime(localtime(&t1->creation_date)));
     }
 
     // STEP 2 - dates
