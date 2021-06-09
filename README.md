@@ -1,10 +1,12 @@
 # c-kanban
 
+Simple command-line application for task management.
+
 Usage:
 <br/>
 <br/>
 
-make - Same as doing `make compile && make run && make clean`
+make - Same as `make compile && make run && make clean`
 
 make compile - Compile the program
 
